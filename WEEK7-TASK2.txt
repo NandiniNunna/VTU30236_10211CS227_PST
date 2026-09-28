@@ -1,0 +1,49 @@
+import java.util.*;
+
+class Student {
+}
+
+class Rockstar {
+}
+
+class Hacker {
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        ArrayList<Object> myList = new ArrayList<Object>();
+
+        int n = sc.nextInt();
+
+        for (int i = 0; i < n; i++) {
+            String s = sc.next();
+
+            if (s.equals("Student")) {
+                myList.add(new Student());
+            } else if (s.equals("Rockstar")) {
+                myList.add(new Rockstar());
+            } else if (s.equals("Hacker")) {
+                myList.add(new Hacker());
+            }
+        }
+
+        int student = 0;
+        int rockstar = 0;
+        int hacker = 0;
+
+        for (Object obj : myList) {
+            if (obj instanceof Student) {
+                student++;
+            } else if (obj instanceof Rockstar) {
+                rockstar++;
+            } else if (obj instanceof Hacker) {
+                hacker++;
+            }
+        }
+
+        System.out.println(student + " " + rockstar + " " + hacker);
+    }
+}

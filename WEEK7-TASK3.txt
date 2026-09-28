@@ -1,0 +1,79 @@
+import java.util.*;
+
+class UndergroundSystem {
+
+    // id -> [stationName, checkInTime]
+    HashMap<Integer, Pair> checkInMap;
+
+    // "start#end" -> [totalTime, numberOfTrips]
+    HashMap<String, Data> travelMap;
+
+    public UndergroundSystem() {
+        checkInMap = new HashMap<>();
+        travelMap = new HashMap<>();
+    }
+
+    public void checkIn(int id, String stationName, int t) {
+        checkInMap.put(id, new Pair(stationName, t));
+    }
+
+    public void checkOut(int id, String stationName, int t) {
+
+        // Get customer's check-in information
+        Pair checkIn = checkInMap.get(id);
+
+        String startStation = checkIn.station;
+        int startTime = checkIn.time;
+
+        // Calculate travel time
+        int travelTime = t - startTime;
+
+        // Create route key
+        String route = startStation + "#" + stationName;
+
+        // Update route data
+        if (!travelMap.containsKey(route)) {
+            travelMap.put(route, new Data(travelTime, 1));
+        } else {
+            Data data = travelMap.get(route);
+            data.totalTime += travelTime;
+            data.trips++;
+        }
+
+        // Customer has completed the trip
+        checkInMap.remove(id);
+    }
+
+    public double getAverageTime(String startStation, String endStation) {
+
+        String route = startStation + "#" + endStation;
+
+        Data data = travelMap.get(route);
+
+        return (double) data.totalTime / data.trips;
+    }
+}
+
+
+// Stores check-in information
+class Pair {
+    String station;
+    int time;
+
+    Pair(String station, int time) {
+        this.station = station;
+        this.time = time;
+    }
+}
+
+
+// Stores route information
+class Data {
+    int totalTime;
+    int trips;
+
+    Data(int totalTime, int trips) {
+        this.totalTime = totalTime;
+        this.trips = trips;
+    }
+}
