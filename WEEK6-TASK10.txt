@@ -1,0 +1,164 @@
+import java.io.*;
+import java.util.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+
+class Result {
+
+    public static List<Integer> circularPalindromes(String s) {
+
+        int n = s.length();
+        List<Integer> result = new ArrayList<>();
+
+        // Create circular string
+        String t = s + s;
+
+        // Manacher arrays
+        int m = t.length();
+
+        // odd[i] = radius of odd length palindrome centered at i
+        int[] odd = new int[m];
+
+        int left = 0;
+        int right = -1;
+
+        for (int i = 0; i < m; i++) {
+
+            int k;
+
+            if (i > right) {
+                k = 1;
+            } else {
+                k = Math.min(odd[left + right - i],
+                             right - i + 1);
+            }
+
+            while (i - k >= 0 &&
+                   i + k < m &&
+                   t.charAt(i - k) == t.charAt(i + k)) {
+                k++;
+            }
+
+            odd[i] = k;
+
+            if (i + k - 1 > right) {
+                left = i - k + 1;
+                right = i + k - 1;
+            }
+        }
+
+        // even[i] = radius of even length palindrome
+        // whose right half starts at i
+        int[] even = new int[m];
+
+        left = 0;
+        right = -1;
+
+        for (int i = 0; i < m; i++) {
+
+            int k;
+
+            if (i > right) {
+                k = 0;
+            } else {
+                k = Math.min(even[left + right - i + 1],
+                             right - i + 1);
+            }
+
+            while (i - k - 1 >= 0 &&
+                   i + k < m &&
+                   t.charAt(i - k - 1) == t.charAt(i + k)) {
+                k++;
+            }
+
+            even[i] = k;
+
+            if (i + k - 1 > right) {
+                left = i - k;
+                right = i + k - 1;
+            }
+        }
+
+        /*
+         * For every rotation, find the longest palindrome
+         * completely inside that rotation.
+         */
+        for (int start = 0; start < n; start++) {
+
+            int end = start + n - 1;
+            int best = 1;
+
+            // Odd length palindromes
+            for (int center = start; center <= end; center++) {
+
+                int radius = odd[center];
+
+                int maxRadius = Math.min(
+                        radius - 1,
+                        Math.min(center - start,
+                                 end - center)
+                );
+
+                int length = 2 * maxRadius + 1;
+
+                best = Math.max(best, length);
+            }
+
+            // Even length palindromes
+            for (int center = start; center <= end; center++) {
+
+                int radius = even[center];
+
+                int maxRadius = Math.min(
+                        radius,
+                        Math.min(center - start,
+                                 end - center + 1)
+                );
+
+                int length = 2 * maxRadius;
+
+                best = Math.max(best, length);
+            }
+
+            result.add(best);
+        }
+
+        return result;
+    }
+}
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+
+        BufferedReader bufferedReader =
+            new BufferedReader(
+                new InputStreamReader(System.in)
+            );
+
+        BufferedWriter bufferedWriter =
+            new BufferedWriter(
+                new FileWriter(System.getenv("OUTPUT_PATH"))
+            );
+
+        int n = Integer.parseInt(
+            bufferedReader.readLine().trim()
+        );
+
+        String s = bufferedReader.readLine();
+
+        List<Integer> result =
+            Result.circularPalindromes(s);
+
+        bufferedWriter.write(
+            result.stream()
+                .map(Object::toString)
+                .collect(joining("\n"))
+        );
+
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
